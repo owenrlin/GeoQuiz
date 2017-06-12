@@ -1,5 +1,6 @@
 package com.bignerdranch.android.geoquiz;
 
+import android.icu.math.BigDecimal;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +31,8 @@ public class QuizActivity extends AppCompatActivity {
 
     //Arrays are kinda hokey but will use to be consistent with book example
     private boolean[] mAnswerState = new boolean[] {false, false, false, false, false, false};
+    private int mAnsweredCorrectly = 0;
+    private int mAnswered = 0;
 
     private int mCurrentIndex = 0;
 
@@ -132,12 +135,26 @@ public class QuizActivity extends AppCompatActivity {
     private void checkAnswer(boolean userAnswer) {
 
         mAnswerState[mCurrentIndex] = true;
+        mAnswered++;
 
-        int message = mQuestionBank[mCurrentIndex].isAnswerTrue() == userAnswer ?
-                R.string.correct_toast : R.string.incorrect_toast;
+        int message = R.string.incorrect_toast;
+        if(mQuestionBank[mCurrentIndex].isAnswerTrue() == userAnswer) {
+            message = R.string.correct_toast;
+            mAnsweredCorrectly++;
+        }
+
         Toast.makeText(QuizActivity.this,
             message,
             Toast.LENGTH_SHORT).show();
+
+        if(mAnswered == mQuestionBank.length) {
+            String scoreFormat = getResources().getString(R.string.score_toast);
+            float score = (float) mAnsweredCorrectly/mQuestionBank.length * 100;
+            String scoreMessage = String.format(scoreFormat, score);
+            Toast.makeText(QuizActivity.this,
+                    scoreMessage,
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private void refreshButtons() {
