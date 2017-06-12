@@ -28,6 +28,9 @@ public class QuizActivity extends AppCompatActivity {
         new Question(R.string.question_oceans, true)
     };
 
+    //Arrays are kinda hokey but will use to be consistent with book example
+    private boolean[] mAnswerState = new boolean[] {false, false, false, false, false, false};
+
     private int mCurrentIndex = 0;
 
     @Override
@@ -55,6 +58,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v)  {
                 checkAnswer(true);
+                refreshButtons();
             }
            });
 
@@ -63,6 +67,7 @@ public class QuizActivity extends AppCompatActivity {
            @Override
            public void onClick(View v)  {
                 checkAnswer(false);
+               refreshButtons();
            }
        });
 
@@ -72,6 +77,7 @@ public class QuizActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mCurrentIndex = (++mCurrentIndex) % mQuestionBank.length;
                 updateQuestion();
+                refreshButtons();
             }
         });
 
@@ -81,6 +87,7 @@ public class QuizActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mCurrentIndex = (mQuestionBank.length + --mCurrentIndex) % mQuestionBank.length;
                 updateQuestion();
+                refreshButtons();
             }
         });
     }
@@ -124,11 +131,18 @@ public class QuizActivity extends AppCompatActivity {
 
     private void checkAnswer(boolean userAnswer) {
 
+        mAnswerState[mCurrentIndex] = true;
+
         int message = mQuestionBank[mCurrentIndex].isAnswerTrue() == userAnswer ?
                 R.string.correct_toast : R.string.incorrect_toast;
         Toast.makeText(QuizActivity.this,
             message,
             Toast.LENGTH_SHORT).show();
+    }
+
+    private void refreshButtons() {
+        mTrueButton.setEnabled(!mAnswerState[mCurrentIndex]);
+        mFalseButton.setEnabled(!mAnswerState[mCurrentIndex]);
     }
 
     private void updateQuestion() {
