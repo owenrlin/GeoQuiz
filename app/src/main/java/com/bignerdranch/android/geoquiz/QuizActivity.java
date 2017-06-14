@@ -14,6 +14,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private static final String KEY_INDEX = "index";
 
+    private Button mCheatButton;
     private Button mTrueButton;
     private Button mFalseButton;
     private ImageButton mPrevButton;
@@ -54,7 +55,6 @@ public class QuizActivity extends AppCompatActivity {
                 updateQuestion();
             }
         });
-        updateQuestion();
 
         mTrueButton = (Button)findViewById(R.id.true_button);
         mTrueButton.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +73,14 @@ public class QuizActivity extends AppCompatActivity {
                refreshButtons();
            }
        });
+
+        mCheatButton = (Button)findViewById(R.id.cheat_button);
+        mCheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)  {
+                //Nothing for now
+            }
+        });
 
         mNextButton = (ImageButton)findViewById(R.id.next_button);
         mNextButton.setOnClickListener(new View.OnClickListener() {
@@ -93,6 +101,8 @@ public class QuizActivity extends AppCompatActivity {
                 refreshButtons();
             }
         });
+
+        updateQuestion();
     }
 
     @Override
