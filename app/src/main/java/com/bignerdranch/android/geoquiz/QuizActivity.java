@@ -1,5 +1,6 @@
 package com.bignerdranch.android.geoquiz;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 public class QuizActivity extends AppCompatActivity {
 
     private static final String KEY_INDEX = "index";
+    private static final int REQUEST_CODE_CHEAT = 0;
 
     private Button mCheatButton;
     private Button mTrueButton;
@@ -34,7 +36,7 @@ public class QuizActivity extends AppCompatActivity {
     private boolean[] mAnswerState = new boolean[] {false, false, false, false, false, false};
     private int mAnsweredCorrectly = 0;
     private int mAnswered = 0;
-
+    private boolean mIsCheater;
     private int mCurrentIndex = 0;
 
     @Override
@@ -81,7 +83,7 @@ public class QuizActivity extends AppCompatActivity {
                 Intent cheatIntent = CheatActivity.newIntent(
                         QuizActivity.this,
                         mQuestionBank[mCurrentIndex].isAnswerTrue());
-                startActivity(cheatIntent);
+                startActivityForResult(cheatIntent, REQUEST_CODE_CHEAT);
             }
         });
 
@@ -90,6 +92,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mCurrentIndex = (++mCurrentIndex) % mQuestionBank.length;
+                mIsCheater = false;
                 updateQuestion();
                 refreshButtons();
             }
@@ -100,6 +103,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mCurrentIndex = (mQuestionBank.length + --mCurrentIndex) % mQuestionBank.length;
+                mIsCheater = false;
                 updateQuestion();
                 refreshButtons();
             }
@@ -145,13 +149,27 @@ public class QuizActivity extends AppCompatActivity {
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent result) {
+        if(resultCode != Activity.RESULT_OK) { return; }
+
+        if(requestCode == REQUEST_CODE_CHEAT) {
+            if(result != null) {
+                mIsCheater = CheatActivity.wasAnswerShown(result);
+            }
+        }
+    }
+
     private void checkAnswer(boolean userAnswer) {
 
         mAnswerState[mCurrentIndex] = true;
         mAnswered++;
 
         int message = R.string.incorrect_toast;
-        if(mQuestionBank[mCurrentIndex].isAnswerTrue() == userAnswer) {
+        if(mIsCheater) {
+            message = R.string.judgment_toast;
+        }
+        else if(mQuestionBank[mCurrentIndex].isAnswerTrue() == userAnswer) {
             message = R.string.correct_toast;
             mAnsweredCorrectly++;
         }
