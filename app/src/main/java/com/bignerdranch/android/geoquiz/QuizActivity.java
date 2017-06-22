@@ -2,6 +2,7 @@ package com.bignerdranch.android.geoquiz;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,6 +19,7 @@ public class QuizActivity extends AppCompatActivity {
     private static final String KEY_ANSWERED_CORRECTLY_COUNT = "answered_correctly_count";
     private static final String KEY_IS_CHEATER = "is_cheater";
     private static final int REQUEST_CODE_CHEAT = 0;
+    private static final int CHEAT_LIMIT = 3;
 
     private Button mCheatButton;
     private Button mTrueButton;
@@ -25,6 +27,8 @@ public class QuizActivity extends AppCompatActivity {
     private ImageButton mPrevButton;
     private ImageButton mNextButton;
     private TextView mQuestionTextView;
+    private TextView mRemainingCheatsTextView;
+
 
     private Question[] mQuestionBank = new Question[] {
         new Question(R.string.question_australia, true),
@@ -47,6 +51,7 @@ public class QuizActivity extends AppCompatActivity {
     private int mAnsweredCount = 0;
     private int mAnsweredCorrectlyCount = 0;
     private int mCurrentIndex = 0;
+    private int mRemainingCheatCount = CHEAT_LIMIT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +103,10 @@ public class QuizActivity extends AppCompatActivity {
                 startActivityForResult(cheatIntent, REQUEST_CODE_CHEAT);
             }
         });
+
+
+        mRemainingCheatsTextView = (TextView)findViewById(R.id.remaining_cheats_text_view);
+        updateRemainingCheats();
 
         mNextButton = (ImageButton)findViewById(R.id.next_button);
         mNextButton.setOnClickListener(new View.OnClickListener() {
@@ -167,8 +176,14 @@ public class QuizActivity extends AppCompatActivity {
         if(resultCode != Activity.RESULT_OK) { return; }
 
         if(requestCode == REQUEST_CODE_CHEAT) {
-            if(result != null) {
-                mAnswerState[mCurrentIndex].setCheated(CheatActivity.wasAnswerShown(result));
+            if((result != null) && (CheatActivity.wasAnswerShown(result))) {
+                mAnswerState[mCurrentIndex].setCheated(true);
+                mRemainingCheatCount--;
+                updateRemainingCheats();
+
+                if(mRemainingCheatCount == 0) {
+                    mCheatButton.setEnabled(false);
+                }
             }
         }
     }
@@ -209,5 +224,11 @@ public class QuizActivity extends AppCompatActivity {
     private void updateQuestion() {
         int questionResId = mQuestionBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(questionResId);
+    }
+
+    private void updateRemainingCheats() {
+        String remainingCheatFormat = getResources().getString(R.string.remaining_cheats_text);
+        String remainingCheatMessage = String.format(remainingCheatFormat, mRemainingCheatCount);
+        mRemainingCheatsTextView.setText(remainingCheatMessage);
     }
 }

@@ -26,7 +26,6 @@ public class CheatActivity extends AppCompatActivity {
 
     private TextView mAnswerTextView;
     private Button mShowAnswerButton;
-    private TextView mApiLevelTextView;
 
     public static Intent newIntent(Context packageContext, boolean answerTrue) {
         Intent intent = new Intent(packageContext, CheatActivity.class);
@@ -81,11 +80,6 @@ public class CheatActivity extends AppCompatActivity {
                 }
             }
         });
-
-        mApiLevelTextView = (TextView)findViewById(R.id.api_level_text_view);
-        String apiLevelFormat = getResources().getString(R.string.api_level_text);
-        String apiLevelMessage = String.format(apiLevelFormat, Build.VERSION.SDK_INT);
-        mApiLevelTextView.setText(apiLevelMessage);
     }
 
     @Override
